@@ -4,5 +4,17 @@
   text-decoration: solid;
   text-transform: capitalize;
   box-shadow: inset;
+  
 }
-
+.product_img{
+    object-fit: contain;
+    width: 100%;
+    height: 200px;
+}
+.product_img:hover{
+  transform: scale(1.2);
+  transition: 2s;
+}
+.body{
+  background-color: rgb(8, 14, 3);
+}
