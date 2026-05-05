@@ -6,6 +6,7 @@ import GetProducts from './components/GetProducts';
 import NavBar from './components/NavBar';
 import AddProducts from './components/AddProducts';
 import MpesaPayment from './components/MpesaPayment';
+import Wishlist from './components/WishList';
 import { BrowserRouter,Route,Routes,Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/mpesapayment" element={<MpesaPayment />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+           <Route path="/wishlist" element={<Wishlist />} />
         </Routes>
       </div>
       </BrowserRouter>

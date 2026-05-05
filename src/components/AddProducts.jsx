@@ -41,7 +41,7 @@ const AddProduct = () => {
                 {success}
                 <h2 className="text-dark">Upload Products</h2>
                 <form onSubmit={submit}>
-                    <input type="text" placeholder="Enter product name"
+                    <input type="text" placeholder=" 😝Enter product name"
                         className="form-control"
                         required
                         value={productname}
@@ -49,13 +49,13 @@ const AddProduct = () => {
                     /><br /><br />
                     {productname}
 
-                    <textarea className="form-control" placeholder="describe your product" required
+                    <textarea className="form-control" placeholder="☺️ describe your product" required
                         value={productdescription}
                         onChange={(e) => setproductdescription(e.target.value)}>
                     </textarea><br />
                     {productdescription}
 
-                    <input type="number" placeholder="Enter product cost"
+                    <input type="number" placeholder=" 😋Enter product cost"
                         className="form-control"
                         required
                         value={productcost}

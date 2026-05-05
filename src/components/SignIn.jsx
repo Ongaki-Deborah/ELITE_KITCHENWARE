@@ -52,7 +52,7 @@ const SignIn = () => {
                 <h2 className="text-dark">sign in</h2><br />
                 <form onSubmit={submit} >
                     <label htmlFor="">please wait as we log you in</label><br />
-                    <input type="text" placeholder="username"
+                    <input type="text" placeholder="👀 username"
                         className="form-control"
                         required
                         value={username}
@@ -60,7 +60,7 @@ const SignIn = () => {
                     /><br />
                     {username}
 
-                    <input type="password" placeholder="password"
+                    <input type="password" placeholder="🔑 password"
                         className="form-control"
                         required
                         value={password}

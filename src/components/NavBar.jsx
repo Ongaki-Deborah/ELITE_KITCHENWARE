@@ -46,7 +46,11 @@ const NavBar = () => {
                                 Add Product
                             </NavLink>
                         </li>
-
+                        <li className="nav-item">
+                            <NavLink to="/WishList" className={linkClass}>
+                                Wish List
+                            </NavLink>
+                        </li>
                     </ul>
                 </div>
             </div>

@@ -50,7 +50,7 @@ const SignUp = () => {
                 {success}
                 <h2 className="text-primary text-center">Sign up </h2><br />
                 <form onSubmit={submit}>
-                    <input type="text" placeholder="Enter  Username"
+                    <input type="text" placeholder=" 👤Enter  Username"
                         className="form-control"
                         required
                         value={username}
@@ -58,21 +58,21 @@ const SignUp = () => {
                     /><br /><br />
                     {username}
 
-                    <input type="email" placeholder="Enter  Email"
+                    <input type="email" placeholder="📧 Enter  Email"
                         className="form-control"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     /><br /><br />
                     {email}
-                    <input type="password" placeholder="Enter Password"
+                    <input type="password" placeholder="🔑 Enter Password"
                         className="form-control"
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     /><br /><br />
                     {password}
-                    <input type="text" placeholder="Enter  Phone"
+                    <input type="text" placeholder=" 📱Enter  Phone"
                         className="form-control"
                         required
                         value={phone}
