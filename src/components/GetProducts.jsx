@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const GetProducts = () => {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState("");
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,33 +13,55 @@ const GetProducts = () => {
 
     const productsPerPage = 10;
     const navigate = useNavigate();
-    const images_url = "https://deborahkiboko.alwaysdata.net/static/images/";
 
-    // ❤️ WISHLIST FUNCTION
-    const addToWishlist = (product) => {
-        let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const images_url =
+        "https://deborahkiboko.alwaysdata.net/static/images/";
 
-        const exists = wishlist.find((item) => item.id === product.id);
+    // 🛒 ADD TO CART
+    const addToCart = (product) => {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-        if (!exists) {
-            wishlist.push(product);
-            localStorage.setItem("wishlist", JSON.stringify(wishlist));
-            alert("❤️ Added to wishlist!");
+        const index = cart.findIndex((item) => item.id === product.id);
+
+        if (index !== -1) {
+            cart[index] = {
+                ...cart[index],
+                quantity: cart[index].quantity + 1,
+            };
         } else {
-            alert("⚠️ Already in wishlist");
+            cart.push({ ...product, quantity: 1 });
         }
+
+        localStorage.setItem("cart", JSON.stringify(cart));
+        navigate("/cart");
     };
 
+    // ❤️ WISHLIST
+    const addToWishlist = (product) => {
+        let wishlist =
+            JSON.parse(localStorage.getItem("wishlist")) || [];
+
+        const exists = wishlist.some((item) => item.id === product.id);
+
+        if (!exists) {
+            wishlist = [...wishlist, product];
+            localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        }
+
+        navigate("/wishlist");
+    };
+
+    // FETCH PRODUCTS
     const getProducts = async () => {
-        setLoading("Loading...");
+        setLoading(true);
         try {
             const res = await axios.get(
                 "https://deborahkiboko.alwaysdata.net/api/get_product_details"
             );
             setProducts(res.data);
-            setLoading("");
+            setLoading(false);
         } catch (err) {
-            setLoading("");
+            setLoading(false);
             setError("Error loading products");
         }
     };
@@ -48,102 +70,89 @@ const GetProducts = () => {
         getProducts();
     }, []);
 
+    // 🔥 RESET PAGE ON SEARCH/SORT (IMPORTANT FIX)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, sortOrder]);
+
     // SORT
-    const sortedProducts = [...products].sort((a, b) => {
+    const sorted = [...products].sort((a, b) => {
         if (sortOrder === "low") return a.product_cost - b.product_cost;
         if (sortOrder === "high") return b.product_cost - a.product_cost;
         return 0;
     });
 
     // FILTER
-    const filteredProducts = sortedProducts.filter((product) =>
-        product.product_name.toLowerCase().includes(search) ||
-        product.product_description?.toLowerCase().includes(search)
+    const filtered = sorted.filter((p) =>
+        p.product_name.toLowerCase().includes(search.toLowerCase())
     );
 
-    // PAGINATION
-    const indexOfLast = currentPage * productsPerPage;
-    const indexOfFirst = indexOfLast - productsPerPage;
-    const currentProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
-    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+    // PAGINATION SAFETY
+    const totalPages =
+        Math.max(1, Math.ceil(filtered.length / productsPerPage));
+
+    const last = currentPage * productsPerPage;
+    const first = last - productsPerPage;
+    const current = filtered.slice(first, last);
+
+    // prevent invalid page number
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [totalPages, currentPage]);
 
     return (
-        <div
-            className="container-fluid py-4"
-            style={{
-                minHeight: "100vh",
-                background:
-                    "linear-gradient(135deg, #0F2027, #203A43, #2C5364)",
-            }}
-        >
-            {/* HEADER */}
-            <h3 className="text-center mb-4 text-light fw-bold">
-                🍳 Kitchen Products
-            </h3>
+        <div className="container-fluid py-4">
+            <h3 className="text-center mb-3">🍳 Products</h3>
 
             {/* SEARCH + SORT */}
             <div className="d-flex justify-content-between mb-3">
-
                 <input
-                    type="text"
-                    className="form-control w-50 bg-dark text-light border-0"
-                    placeholder="🔍 Search products..."
-                    onChange={(e) => {
-                        setSearch(e.target.value.toLowerCase());
-                        setCurrentPage(1);
-                    }}
+                    className="form-control w-50"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                 />
 
                 <select
-                    className="form-select w-auto ms-2 bg-dark text-light border-0"
-                    onChange={(e) => {
-                        setSortOrder(e.target.value);
-                        setCurrentPage(1);
-                    }}
+                    className="form-select w-25 ms-2"
+                    onChange={(e) => setSortOrder(e.target.value)}
                 >
-                    <option value="default">Sort by Price</option>
-                    <option value="low">Low → High</option>
-                    <option value="high">High → Low</option>
+                    <option value="default">Sort</option>
+                    <option value="low">Price: Low to High</option>
+                    <option value="high">Price: High to Low</option>
                 </select>
-
             </div>
 
-            {/* LOADING */}
-            {loading && (
-                <div className="text-center">
-                    <div className="spinner-border text-info"></div>
-                </div>
+            {/* LOADING / ERROR */}
+            {loading && <p className="text-center">Loading...</p>}
+            {error && (
+                <p className="text-center text-danger">{error}</p>
             )}
 
-            {/* ERROR */}
-            {error && <p className="text-danger text-center">{error}</p>}
+            {/* EMPTY STATE */}
+            {!loading && current.length === 0 && (
+                <p className="text-center">No products found</p>
+            )}
 
             {/* PRODUCTS */}
             <div className="row">
-                {currentProducts.map((product) => (
-                    <div key={product.id} className="col-md-3 mb-4">
-                        <div
-                            className="card border-0 h-100"
-                            style={{
-                                borderRadius: "15px",
-                                background: "#ffffff",
-                                boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
-                            }}
-                        >
+                {current.map((product) => (
+                    <div className="col-md-3 mb-3" key={product.id}>
+                        <div className="card shadow-sm border-0 h-100">
+
                             <img
                                 src={images_url + product.product_photo}
-                                className="card-img-top"
+                                alt={product.product_name}
                                 style={{
-                                    height: "200px",
+                                    height: "220px",
                                     objectFit: "cover",
-                                    borderTopLeftRadius: "15px",
-                                    borderTopRightRadius: "15px",
                                 }}
-                                alt="product"
                             />
 
-                            <div className="card-body text-center">
-                                <h5 style={{ color: "#2E2E2E" }}>
+                            <div className="card-body d-flex flex-column">
+                                <h5 className="fw-bold">
                                     {product.product_name}
                                 </h5>
 
@@ -151,72 +160,50 @@ const GetProducts = () => {
                                     {product.product_description}
                                 </p>
 
-                                <h6 style={{ color: "#00BFA6", fontWeight: "bold" }}>
-                                    KES {product.product_cost.toLocaleString()}
+                                <h6 className="text-success fw-bold">
+                                    KES {product.product_cost}
                                 </h6>
 
-                                {/* BUY NOW */}
                                 <button
-                                    className="btn w-100 mt-2 fw-bold"
-                                    style={{
-                                        background: "#00E5FF",
-                                        color: "#003344",
-                                        borderRadius: "25px",
-                                        boxShadow: "0 0 10px #00E5FF",
-                                    }}
-                                    onClick={() =>
-                                        navigate("/mpesapayment", {
-                                            state: { product },
-                                        })
-                                    }
+                                    className="btn btn-warning w-100 mt-auto mb-2"
+                                    onClick={() => addToCart(product)}
                                 >
-                                    Buy Now
+                                    🛒 Add to Cart
                                 </button>
 
-                                {/* ❤️ WISHLIST */}
                                 <button
-                                    className="btn btn-outline-danger w-100 mt-2 fw-bold"
-                                    style={{ borderRadius: "25px" }}
+                                    className="btn btn-outline-danger w-100"
                                     onClick={() => addToWishlist(product)}
                                 >
-                                    ❤️ Add to Wishlist
-                                </button >
+                                    ❤️ Wishlist
+                                </button>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* NO RESULTS */}
-            {currentProducts.length === 0 && !loading && (
-                <p className="text-center text-light mt-4">
-                    😢 No products found
-                </p>
-            )}
-
             {/* PAGINATION */}
-            <div className="d-flex justify-content-center gap-3 mt-4">
-
+            <div className="text-center mt-4">
                 <button
-                    className="btn btn-dark"
+                    className="btn btn-secondary me-2"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(currentPage - 1)}
                 >
                     Prev
                 </button>
 
-                <span className="align-self-center text-light">
-                    Page {currentPage} of {totalPages || 1}
+                <span>
+                    Page {currentPage} / {totalPages}
                 </span>
 
                 <button
-                    className="btn btn-dark"
-                    disabled={currentPage === totalPages || totalPages === 0}
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(currentPage + 1)}
                 >
                     Next
                 </button>
-
             </div>
         </div>
     );

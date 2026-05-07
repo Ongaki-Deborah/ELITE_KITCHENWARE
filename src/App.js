@@ -7,6 +7,7 @@ import NavBar from './components/NavBar';
 import AddProducts from './components/AddProducts';
 import MpesaPayment from './components/MpesaPayment';
 import Wishlist from './components/WishList';
+import Cart from './components/Cart'
 import { BrowserRouter,Route,Routes,Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
            <Route path="/wishlist" element={<Wishlist />} />
+           <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
       </BrowserRouter>
